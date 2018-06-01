@@ -12,20 +12,6 @@ function changeActiveShader(sel) {
     currentProgram = shaderPrograms[id];
 
     $("[class$='-panel']").css("display", "none");
-
-    switch ( id ) {
-        case 5: // Phong
-            $(".phong-panel").css("display", "");
-            break;
-
-        case 6: // Blinn-Phong
-            $(".blinn-phong-panel").css("display", "");
-            break;
-
-        case 7: // Microfacet
-            $(".microfacet-panel").css("display", "");
-            break;
-    }
 }
 
 function changeResolution(sel) {
@@ -98,38 +84,6 @@ function updateSlider_Ambient(sliderAmount) {
     ambientIntensity = value;
 }
 
-function updateSlider_PhongExp(sliderAmount) {
-    var value = sliderAmount*5;
-    $("#sliderAmount_PhongExp").html(value);
-
-    gl.useProgram(shaderPrograms[5]);
-    gl.uniform1f(shaderPrograms[5].exponentUniform, value);
-}
-
-function updateSlider_BlinnPhongExp(sliderAmount) {
-    var value = sliderAmount*5;
-    $("#sliderAmount_BlinnPhongExp").html(value);
-
-    gl.useProgram(shaderPrograms[6]);
-    gl.uniform1f(shaderPrograms[6].exponentUniform, value);
-}
-
-function updateSlider_MicrofacetIOR(sliderAmount) {
-    var value = sliderAmount/10.0;
-    $("#sliderAmount_MicrofacetIOR").html(value);
-
-    gl.useProgram(shaderPrograms[7]);
-    gl.uniform1f(shaderPrograms[7].iorUniform, value);
-}
-
-function updateSlider_MicrofacetBeta(sliderAmount) {
-    var value = sliderAmount/100.0;
-    $("#sliderAmount_MicrofacetBeta").html(value);
-
-    gl.useProgram(shaderPrograms[7]);
-    gl.uniform1f(shaderPrograms[7].betaUniform, value);
-}
-
 /*
  * Page-load handler
  */
@@ -155,19 +109,6 @@ $(function() {
             var color_ = color.toRgb();
             $("#colorText").html(color.toHexString());
             diffuseColor = [color_.r/255.0, color_.g/255.0, color_.b/255.0];
-        }
-    });
-
-    $("#specColorPicker").spectrum({
-        color: "#ffffff",
-        showPaletteOnly: true,
-        togglePaletteOnly: true,
-        hideAfterPaletteSelect: true,
-        palette: colorPalette,
-        change: function(color) {
-            var color_ = color.toRgb();
-            $("#specColorText").html(color.toHexString());
-            specularColor = [color_.r/255.0, color_.g/255.0, color_.b/255.0];
         }
     });
 
