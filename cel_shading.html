@@ -106,13 +106,43 @@
     //
     precision mediump float;
 
+    uniform vec3  uLightPos;
+    uniform float uLightPower;
+    uniform vec3  uDiffuseColor;
+
     varying vec3 vPosition;             // Vertex position (camera space)
     varying vec3 vNormal;               // Vertex normal (camera space)
 
     void main(void) {
-        vec4 zero = vec4(vPosition + vNormal - vPosition - vNormal, 0.0);
+        vec4  zero = vec4(vPosition + vNormal - vPosition - vNormal, 0.0);
+        vec3  lightDir = uLightPos - vPosition;
+        vec3  lightDirNormal  = normalize(lightDir);
+        vec3  normalDirNormal = normalize(vNormal);
+        float lightDirLength  = length(lightDir);
+        float intensity = uLightPower / (pow(lightDirLength, 2.0) / 5.0 + 5.0);
+        float discreteIntensity = intensity;
 
-        gl_FragColor = zero + vec4(1.0, 1.0, 1.0, 1.0);
+        if (intensity < 0.0) {
+          intensity = 0.0;
+        }
+
+        // Modifies the intensity to create toon shading effect
+        if (intensity > 0.8) {
+          discreteIntensity = 1.0;
+        }
+        else if (intensity > 0.5) {
+          discreteIntensity = 0.7;
+        }
+        else if (intensity > 0.05) {
+          discreteIntensity = 0.35;
+        }
+        else {
+          discreteIntensity = 0.1;
+        }
+
+
+        vec3 color = uDiffuseColor * (discreteIntensity * max(dot(normalDirNormal, lightDirNormal), 0.0));
+        gl_FragColor = vec4(color, 1.0);
     }
 </script>
 </head>
