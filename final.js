@@ -84,6 +84,12 @@ function updateSlider_Ambient(sliderAmount) {
     ambientIntensity = value;
 }
 
+function updateSlider_CelBands(sliderAmount) {
+    var value = sliderAmount;
+    $("#sliderAmount_CelBands").html(value);
+    celBand = value;
+}
+
 /*
  * Page-load handler
  */

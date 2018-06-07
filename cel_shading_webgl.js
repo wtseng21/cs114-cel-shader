@@ -67,6 +67,7 @@ function createShader(vs_id, fs_id) {
     shaderProg.kdUniform = gl.getUniformLocation(shaderProg, "uDiffuseColor");
     shaderProg.ambientUniform = gl.getUniformLocation(shaderProg, "uAmbient");
     shaderProg.ksUniform = gl.getUniformLocation(shaderProg, "uSpecularColor");
+    shaderProg.celBandUniform = gl.getUniformLocation(shaderProg, "uCelBand");
 
     return shaderProg;
 }
@@ -116,6 +117,7 @@ var lightPower = 5.0;                           // "Power" of the light source
 var diffuseColor = [0.2392, 0.5216, 0.7765];    // Diffuse color
 var ambientIntensity = 0.1;                     // Ambient
 var specularColor = [1.0, 1.0, 1.0];            // Specular Color
+var celBand = 4;                                // Number of Bands for Cel Shading
 
 // Animation related variables
 var rotY = 0.0;                                 // object rotation
@@ -133,6 +135,7 @@ function setUniforms(prog) {
     gl.uniform3fv(prog.kdUniform, diffuseColor);
     gl.uniform1f(prog.ambientUniform, ambientIntensity);
     gl.uniform3fv(prog.ksUniform, specularColor);
+    gl.uniform1i(prog.celBandUniform, celBand);
 }
 
 var draw_light = false;
