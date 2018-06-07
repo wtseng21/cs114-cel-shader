@@ -114,6 +114,17 @@
     varying vec3  vPosition;             // Vertex position (camera space)
     varying vec3  vNormal;               // Vertex normal (camera space)
 
+    //////////////////////
+    // HELPER FUNCTIONS //
+    //////////////////////
+    vec3 multiplyColor(vec3 color, float discreteIntensity) {
+        color.x = color.x * discreteIntensity;
+        color.y = color.y * discreteIntensity;
+        color.z = color.z * discreteIntensity;
+
+        return color;
+    }
+
     void main(void) {
         vec3  lightDir          = uLightPos - vPosition;
         vec3  lightDirNormal    = normalize(lightDir);
@@ -129,33 +140,25 @@
         vec3 color = uDiffuseColor;
 
         // Modifies the intensity to create toon shading effect
-        if (intensity > 0.95) {
-          discreteIntensity =   1.0;
-
-          color.x = color.x * discreteIntensity;
-          color.y = color.y * discreteIntensity;
-          color.z = color.z * discreteIntensity;
+        if (uCelBand == 3) {
+          if      (intensity > 0.85)  { color = multiplyColor(color, 0.90); }
+          else if (intensity > 0.50)  { color = multiplyColor(color, 0.50); }
+          else                        { color = multiplyColor(color, 0.20); }
         }
-        else if (intensity > 0.5) {
-          discreteIntensity = 0.6;
 
-          color.x = color.x * discreteIntensity;
-          color.y = color.y * discreteIntensity;
-          color.z = color.z * discreteIntensity;
+        if (uCelBand == 4) {
+          if      (intensity > 0.90)  { color = multiplyColor(color, 0.95); }
+          else if (intensity > 0.67)  { color = multiplyColor(color, 0.60); }
+          else if (intensity > 0.33)  { color = multiplyColor(color, 0.40); }
+          else                        { color = multiplyColor(color, 0.20); }
         }
-        else if (intensity > 0.15) {
-          discreteIntensity = 0.4;
 
-          color.x = color.x * discreteIntensity;
-          color.y = color.y * discreteIntensity;
-          color.z = color.z * discreteIntensity;
-        }
-        else {
-          discreteIntensity = 0.2;
-
-          color.x = color.x * discreteIntensity;
-          color.y = color.y * discreteIntensity;
-          color.z = color.z * discreteIntensity;
+        if (uCelBand == 5) {
+          if      (intensity > 0.95)  { color = multiplyColor(color, 1.00); }
+          else if (intensity > 0.75)  { color = multiplyColor(color, 0.80); }
+          else if (intensity > 0.50)  { color = multiplyColor(color, 0.60); }
+          else if (intensity > 0.25)  { color = multiplyColor(color, 0.40); }
+          else                        { color = multiplyColor(color, 0.20); }
         }
 
         gl_FragColor = vec4(color, 1.0);
@@ -248,7 +251,7 @@
             <tr>
                 <td>Number of Bands</td>
                 <td>
-                    <input id="sliderBar_CelBands" type="range" min="2" max="10" value="4" onchange="updateSlider_CelBands(this.value);">
+                    <input id="sliderBar_CelBands" type="range" min="3" max="5" value="4" onchange="updateSlider_CelBands(this.value);">
                     (<span id="sliderAmount_CelBands">4</span>)
                 </td>
             </tr>
