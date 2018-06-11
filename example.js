@@ -87,56 +87,26 @@ function tick() {
 
 function initProgramme(){
 
-    /*
-     * Shadow Programme
-     */
-    var Svx = getShader("shadow-shader-vs");
-    var Sfg = getShader("shadow-shader-fs");
-
-    prgShadow = gl.createProgram();
-    gl.attachShader(prgShadow, Svx);
-    gl.attachShader(prgShadow, Sfg);
-    gl.linkProgram(prgShadow);
-    gl.deleteShader(Svx);
-    gl.deleteShader(Sfg);
-
-    if (!gl.getProgramParameter(prgShadow, gl.LINK_STATUS)) {
-        alert("Could not initialise shaders Shadow");
-    }
-
-    prgShadow.vertexPositionAttribute = gl.getAttribLocation(prgShadow, 'aVertexPosition');
-    prgShadow.lightSpaceMatrixUniform = gl.getUniformLocation(prgShadow, 'uLightSpaceMatrix');
-    prgShadow.mMatrixUniform = gl.getUniformLocation(prgShadow, 'uMMatrix');
-
-    /*
-     * Plan Programme
-     */
-    var Pvx = getShader("plan-shader-vs");
-    var Pfg = getShader("plan-shader-fs");
-
-    prgPlan = gl.createProgram();
-    gl.attachShader(prgPlan, Pvx);
-    gl.attachShader(prgPlan, Pfg);
-    gl.linkProgram(prgPlan);
-    gl.deleteShader(Pvx);
-    gl.deleteShader(Pfg);
-
-    if (!gl.getProgramParameter(prgPlan, gl.LINK_STATUS)) {
-        alert("Could not initialise shaders Plan");
-    }
-
-    prgPlan.vertexPositionAttribute = gl.getAttribLocation(prgPlan, 'aVertexPosition');
-    prgPlan.vertexNormalAttribute = gl.getAttribLocation(prgPlan, 'aVertexNormal');
-    prgPlan.pMatrixUniform = gl.getUniformLocation(prgPlan, 'uPMatrix');
-    prgPlan.vMatrixUniform = gl.getUniformLocation(prgPlan, 'uVMatrix');
-    prgPlan.mMatrixUniform = gl.getUniformLocation(prgPlan, 'uMMatrix');
-    prgPlan.nMatrixUniform = gl.getUniformLocation(prgPlan, 'uNMatrix');
-    prgPlan.lightSpaceMatrixUniform = gl.getUniformLocation(prgPlan, 'uLightSpaceMatrix');
-    prgPlan.viewPositionUniform = gl.getUniformLocation(prgPlan, 'uViewPos');
-    prgPlan.lightPosUniform = gl.getUniformLocation(prgPlan, 'uLightPos');
-    prgPlan.lightColorUniform = gl.getUniformLocation(prgPlan, 'uLightColor');
-    prgPlan.planColorUniform = gl.getUniformLocation(prgPlan, 'uPlanColor');
-    prgPlan.samplerShadowMapUniform = gl.getUniformLocation(prgPlan, 'uSamplerShadow');
+    // /*
+    //  * Shadow Programme
+    //  */
+    // var Svx = getShader("shadow-shader-vs");
+    // var Sfg = getShader("shadow-shader-fs");
+    //
+    // prgShadow = gl.createProgram();
+    // gl.attachShader(prgShadow, Svx);
+    // gl.attachShader(prgShadow, Sfg);
+    // gl.linkProgram(prgShadow);
+    // gl.deleteShader(Svx);
+    // gl.deleteShader(Sfg);
+    //
+    // if (!gl.getProgramParameter(prgShadow, gl.LINK_STATUS)) {
+    //     alert("Could not initialise shaders Shadow");
+    // }
+    //
+    // prgShadow.vertexPositionAttribute = gl.getAttribLocation(prgShadow, 'aVertexPosition');
+    // prgShadow.lightSpaceMatrixUniform = gl.getUniformLocation(prgShadow, 'uLightSpaceMatrix');
+    // prgShadow.mMatrixUniform = gl.getUniformLocation(prgShadow, 'uMMatrix');
 
     /*
      * OutLine Programme
@@ -394,74 +364,33 @@ function drawScene(){
 
     gl.disableVertexAttribArray(prgCel.vertexPositionAttribute);
     gl.disableVertexAttribArray(prgCel.vertexNormalAttribute);
-
-    /*
-     * Plan Rendering
-     */
-
-    gl.useProgram(prgPlan);
-    gl.enableVertexAttribArray(prgPlan.vertexPositionAttribute);
-    gl.enableVertexAttribArray(prgPlan.vertexNormalAttribute);
-
-    mat4.identity(mMatrix);
-    mat4.translate(mMatrix, mMatrix, [0.0, -10.0, 0.0]);
-    mat3.normalFromMat4(nMatrix, mMatrix);
-
-    gl.activeTexture(gl.TEXTURE1);
-    gl.bindTexture(gl.TEXTURE_2D, depthMapTexture);
-    gl.uniform1i(prgPlan.samplerShadowMapUniform, 1);
-
-    gl.uniform3fv(prgPlan.planColorUniform, planColor);
-    gl.uniform3fv(prgPlan.lightPosUniform, lightPos);
-    gl.uniform3fv(prgPlan.lightColorUniform, lightColor);
-    gl.uniform3fv(prgPlan.viewPositionUniform, [0.0,0.0,0.0]);
-
-    gl.uniformMatrix4fv(prgPlan.pMatrixUniform, false, pMatrix);
-    gl.uniformMatrix4fv(prgPlan.vMatrixUniform, false, vMatrix);
-    gl.uniformMatrix4fv(prgPlan.mMatrixUniform, false, mMatrix);
-    gl.uniformMatrix3fv(prgPlan.nMatrixUniform, false, nMatrix);
-    gl.uniformMatrix4fv(prgPlan.lightSpaceMatrixUniform, false, lightSpaceMatrix);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, planVertexBuffer);
-    gl.vertexAttribPointer(prgPlan.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, planNormalBuffer);
-    gl.vertexAttribPointer(prgPlan.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planIndexBuffer);
-
-    gl.drawElements(gl.TRIANGLES, planNumberIndex, gl.UNSIGNED_INT, 0);
-
-    gl.disableVertexAttribArray(prgPlan.vertexPositionAttribute);
-    gl.disableVertexAttribArray(prgPlan.vertexNormalAttribute);
-
 }
 
-function animate() {
-    i += 1;
-    if(i == 630){
-        i = 0;
-    }
-
-    if(activateSwapColor){
-        var color = HSVtoRGB(i/630.0,0.9,0.9);
-        celColor = vec3.fromValues(color.r,color.g,color.b);
-    }
-
-
-}
-
-function resizeCanvas() {
-    var displayWidth = document.getElementById('container').clientWidth;
-    var displayHeight = document.getElementById('container').clientHeight;
-
-    if (gl.viewportWidth != displayWidth || gl.viewportHeight != displayHeight) {
-        gl.viewportWidth = displayWidth;
-        gl.viewportHeight = displayHeight;
-        canvas.width = displayWidth;
-        canvas.height = displayHeight;
-    }
-}
+// function animate() {
+//     i += 1;
+//     if(i == 630){
+//         i = 0;
+//     }
+//
+//     if(activateSwapColor){
+//         var color = HSVtoRGB(i/630.0,0.9,0.9);
+//         celColor = vec3.fromValues(color.r,color.g,color.b);
+//     }
+//
+//
+// }
+//
+// function resizeCanvas() {
+//     var displayWidth = document.getElementById('container').clientWidth;
+//     var displayHeight = document.getElementById('container').clientHeight;
+//
+//     if (gl.viewportWidth != displayWidth || gl.viewportHeight != displayHeight) {
+//         gl.viewportWidth = displayWidth;
+//         gl.viewportHeight = displayHeight;
+//         canvas.width = displayWidth;
+//         canvas.height = displayHeight;
+//     }
+// }
 
 function changeCelMode(radio) {
     switch(radio.value) {
@@ -487,12 +416,12 @@ function changeCelMode(radio) {
     }
 }
 
-function enableSwapColor() {
-    activateSwapColor = activateSwapColor == true ? false : true;
-}
-function degToRad(degrees) {
-    return (degrees * Math.PI / 180.0);
-}
+// function enableSwapColor() {
+//     activateSwapColor = activateSwapColor == true ? false : true;
+// }
+// function degToRad(degrees) {
+//     return (degrees * Math.PI / 180.0);
+// }
 
 function getShader(id) {
     var script = document.getElementById(id);
@@ -527,27 +456,27 @@ function getShader(id) {
     return shader;
 }
 
-function HSVtoRGB(h, s, v) {
-    var r, g, b, i, f, p, q, t;
-    if (arguments.length === 1) {
-        s = h.s, v = h.v, h = h.h;
-    }
-    i = Math.floor(h * 6);
-    f = h * 6 - i;
-    p = v * (1 - s);
-    q = v * (1 - f * s);
-    t = v * (1 - (1 - f) * s);
-    switch (i % 6) {
-        case 0: r = v, g = t, b = p; break;
-        case 1: r = q, g = v, b = p; break;
-        case 2: r = p, g = v, b = t; break;
-        case 3: r = p, g = q, b = v; break;
-        case 4: r = t, g = p, b = v; break;
-        case 5: r = v, g = p, b = q; break;
-    }
-    return {
-        r: r,
-        g: g ,
-        b: b
-    };
-}
+// function HSVtoRGB(h, s, v) {
+//     var r, g, b, i, f, p, q, t;
+//     if (arguments.length === 1) {
+//         s = h.s, v = h.v, h = h.h;
+//     }
+//     i = Math.floor(h * 6);
+//     f = h * 6 - i;
+//     p = v * (1 - s);
+//     q = v * (1 - f * s);
+//     t = v * (1 - (1 - f) * s);
+//     switch (i % 6) {
+//         case 0: r = v, g = t, b = p; break;
+//         case 1: r = q, g = v, b = p; break;
+//         case 2: r = p, g = v, b = t; break;
+//         case 3: r = p, g = q, b = v; break;
+//         case 4: r = t, g = p, b = v; break;
+//         case 5: r = v, g = p, b = q; break;
+//     }
+//     return {
+//         r: r,
+//         g: g ,
+//         b: b
+//     };
+// }
