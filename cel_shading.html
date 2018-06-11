@@ -117,6 +117,7 @@
     //////////////////////
     // HELPER FUNCTIONS //
     //////////////////////
+
     vec3 multiplyColor(vec3 color, float discreteIntensity) {
         color.x = color.x * discreteIntensity;
         color.y = color.y * discreteIntensity;
@@ -124,6 +125,10 @@
 
         return color;
     }
+
+    ///////////////////
+    // MAIN FUNCTION //
+    ///////////////////
 
     void main(void) {
         vec3  lightDir          = uLightPos - vPosition;
