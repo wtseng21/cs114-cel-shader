@@ -7,11 +7,16 @@ function changeActiveMesh(sel) {
     currentTransform = meshTransforms[id];
 }
 
-function changeActiveShader(sel) {
+function enableCelShading(sel) {
     var id = parseInt(sel.value, 10);
-    currentProgram = shaderPrograms[id];
 
-    $("[class$='-panel']").css("display", "none");
+    switch ( id ) {
+        case 0:
+            celShadeOn = 0; break;
+
+        case 1:
+            celShadeOn = 1; break;
+    }
 }
 
 function changeResolution(sel) {
@@ -117,6 +122,7 @@ $(function() {
             diffuseColor = [color_.r/255.0, color_.g/255.0, color_.b/255.0];
         }
     });
+
 
     webGLStart();
 });

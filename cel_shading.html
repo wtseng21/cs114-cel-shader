@@ -42,6 +42,35 @@
     }
 </script>
 
+<!-- Vertex shader for outline -->
+<script id="cel-outline-vs" type="x-shader/x-vertex">
+    // TODO
+    uniform mat4 uMVMatrix;             // Model-view matrix
+    uniform mat4 uPMatrix;              // Projection matrix
+    uniform mat4 uNMatrix;              // Normal matrix
+    uniform int  uCelShadeOn;
+
+    attribute vec3 aVertexPosition;     // Vertex position in object space
+    attribute vec3 aVertexNormal;       // Vertex normal in object space
+
+    void main(void) {
+        if (uCelShadeOn == 1) {
+          gl_Position = uPMatrix * uMVMatrix * uNMatrix * vec4(aVertexPosition + aVertexNormal * 0.2, 1.0);
+        }
+    }
+</script>
+
+<!-- Fragment shader for outline -->
+<script id="cel-outline-fs" type="x-shader/x-fragment">
+    // TODO
+    precision highp float;
+    // uniform vec3 uOutlineColor;
+
+    void main(void) {
+        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+</script>
+
 <!-- Common vertex shader for all shading models -->
 <script id="shader-vs" type="x-shader/x-vertex">
     uniform mat4 uMVMatrix;             // Model-view matrix
@@ -51,8 +80,8 @@
     attribute vec3 aVertexPosition;     // Vertex position in object space
     attribute vec3 aVertexNormal;       // Vertex normal in object space
 
-    varying vec3 vPosition;             // Vertex position (camera space)
-    varying vec3 vNormal;               // Vertex normal (camera space)
+    varying vec3  vPosition;             // Vertex position (camera space)
+    varying vec3  vNormal;               // Vertex normal (camera space)
 
     void main(void) {
         vec4 camSpacePosition = uMVMatrix * vec4(aVertexPosition, 1.0);
@@ -74,45 +103,19 @@
     }
 </script>
 
-<!-- Cel Shading Off, Defaults to Diffuse Shading -->
-<script id="shader-off" type="x-shader/x-fragment">
-    precision mediump float;
-
-    uniform vec3  uLightPos;            // Light position in camera space
-    uniform float uLightPower;          // Light power
-    uniform vec3  uDiffuseColor;        // Diffuse color
-    uniform float uAmbient;             // Ambient
-
-    varying vec3 vPosition;             // Fragment position (camera space)
-    varying vec3 vNormal;               // Fragment normal (camera space)
-
-    void main(void) {
-        vec4  zero = vec4(vPosition + vNormal - vPosition - vNormal, 0.0);
-        vec3  lightDir = uLightPos - vPosition;
-        vec3  lightDirNormal = normalize(lightDir);
-        vec3  normalDirNormal = normalize(vNormal);
-        float lightDirLength = length(lightDir);
-        float intensity = uLightPower / (pow(lightDirLength, 2.0) / 5.0 + 5.0);
-
-        vec3 color = uDiffuseColor * (intensity * max(dot(normalDirNormal, lightDirNormal), 0.0) + uAmbient);
-        gl_FragColor = vec4(color, 1.0);
-    }
-</script>
-
-<!-- Cel Shading On -->
-<script id="shader-on" type="x-shader/x-fragment">
-    //
-    // TODO
-    //
+<!-- Fragment Shader for Cel Shading -->
+<script id="cel-shader-fs" type="x-shader/x-fragment">
     precision mediump float;
 
     uniform vec3  uLightPos;
     uniform float uLightPower;
     uniform vec3  uDiffuseColor;
     uniform int   uCelBand;
+    uniform int   uCelShadeOn;
+    uniform float uAmbient;
 
-    varying vec3  vPosition;             // Vertex position (camera space)
-    varying vec3  vNormal;               // Vertex normal (camera space)
+    varying vec3  vPosition;
+    varying vec3  vNormal;
 
     //////////////////////
     // HELPER FUNCTIONS //
@@ -131,39 +134,66 @@
     ///////////////////
 
     void main(void) {
-        vec3  lightDir          = uLightPos - vPosition;
-        vec3  lightDirNormal    = normalize(lightDir);
-        vec3  normalDirNormal   = normalize(vNormal);
-        float lightDirLength    = length(lightDir);
-        float intensity         = dot(lightDirNormal, normalDirNormal);
-        float discreteIntensity = uLightPower / (pow(lightDirLength, 2.0) / 5.0 + 5.0);
-
-        if (intensity < 0.0) {
-          intensity = 0.0;
-        }
-
         vec3 color = uDiffuseColor;
 
-        // Modifies the intensity to create toon shading effect
-        if (uCelBand == 3) {
-          if      (intensity > 0.85)  { color = multiplyColor(color, 0.90); }
-          else if (intensity > 0.50)  { color = multiplyColor(color, 0.50); }
-          else                        { color = multiplyColor(color, 0.20); }
+        // Diffuse Shading (Cel Shading Off)
+        if (uCelShadeOn == 0) {
+          vec3  lightDir = uLightPos - vPosition;
+          vec3  lightDirNormal = normalize(lightDir);
+          vec3  normalDirNormal = normalize(vNormal);
+          float lightDirLength = length(lightDir);
+          float intensity = uLightPower / (pow(lightDirLength, 2.0) / 5.0 + 5.0);
+
+          color = uDiffuseColor * (intensity * max(dot(normalDirNormal, lightDirNormal), 0.0) + uAmbient);
         }
 
-        if (uCelBand == 4) {
-          if      (intensity > 0.90)  { color = multiplyColor(color, 0.95); }
-          else if (intensity > 0.67)  { color = multiplyColor(color, 0.60); }
-          else if (intensity > 0.33)  { color = multiplyColor(color, 0.40); }
-          else                        { color = multiplyColor(color, 0.20); }
-        }
+        // Cel Shading (Cel Shading On)
+        else {
+            vec3  lightDir          = uLightPos - vPosition;
+            vec3  lightDirNormal    = normalize(lightDir);
+            vec3  normalDirNormal   = normalize(vNormal);
+            float lightDirLength    = length(lightDir);
+            float intensity         = dot(lightDirNormal, normalDirNormal);
+            float discreteIntensity = uLightPower / (pow(lightDirLength, 2.0) / 5.0 + 5.0);
 
-        if (uCelBand == 5) {
-          if      (intensity > 0.95)  { color = multiplyColor(color, 1.00); }
-          else if (intensity > 0.75)  { color = multiplyColor(color, 0.80); }
-          else if (intensity > 0.50)  { color = multiplyColor(color, 0.60); }
-          else if (intensity > 0.25)  { color = multiplyColor(color, 0.40); }
-          else                        { color = multiplyColor(color, 0.20); }
+            // Makes color pitch black if negative intensity
+            if (intensity < 0.0) {
+              intensity = 0.0;
+            }
+
+            // TODO: Scale between 3 to 10 cel bands
+            // Modifies the intensity to create toon shading effect
+            if (uCelBand == 3) {
+
+              if (intensity > 0.85 - uLightPower * 0.025)
+                { color = multiplyColor(color, 0.90); }
+              else if (intensity > 0.50 - uLightPower * 0.025)
+                { color = multiplyColor(color, 0.50); }
+              else
+                { color = multiplyColor(color, 0.20); }
+            }
+            if (uCelBand == 4) {
+              if (intensity > 0.90 - uLightPower * 0.025)
+                { color = multiplyColor(color, 0.95); }
+              else if (intensity > 0.67 - uLightPower * 0.025)
+                { color = multiplyColor(color, 0.60); }
+              else if (intensity > 0.33 - uLightPower * 0.025)
+                { color = multiplyColor(color, 0.40); }
+              else
+                { color = multiplyColor(color, 0.20); }
+            }
+            if (uCelBand == 5) {
+              if (intensity > 0.95 - uLightPower * 0.025)
+                { color = multiplyColor(color, 1.00); }
+              else if (intensity > 0.75 - uLightPower * 0.025)
+                { color = multiplyColor(color, 0.80); }
+              else if (intensity > 0.50 - uLightPower * 0.025)
+                { color = multiplyColor(color, 0.60); }
+              else if (intensity > 0.25 - uLightPower * 0.02)
+                { color = multiplyColor(color, 0.40); }
+              else
+                { color = multiplyColor(color, 0.20); }
+            }
         }
 
         gl_FragColor = vec4(color, 1.0);
@@ -238,9 +268,9 @@
         <p>Shading Parameters</p>
         <table>
             <tr>
-                <td width="200px">Shader</td>
+                <td width="200px">Cel Shading</td>
                 <td>
-                    <select onchange="changeActiveShader(this);">
+                    <select onchange="enableCelShading(this);">
                         <option value="0" selected="selected">Disabled</option>
                         <option value="1">Enabled</option>
                     </select>

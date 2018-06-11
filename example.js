@@ -312,46 +312,6 @@ function initMatrix(){
 }
 
 function drawScene(){
-
-    /*
-     * Shadow Rendering
-     */
-    gl.cullFace(gl.FRONT);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, depthMapFrameBuffer);
-    gl.useProgram(prgShadow);
-    gl.enableVertexAttribArray(prgShadow.vertexPositionAttribute);
-
-    gl.viewport(0.0, 0.0, shadowHeight,shadowWidth);
-    gl.clearColor(1.0, 0.0, 0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    gl.uniformMatrix4fv( prgShadow.lightSpaceMatrixUniform, false, lightSpaceMatrix);
-
-    mat4.identity(mMatrix);
-    mat4.rotateY(mMatrix, mMatrix, i*0.01);
-
-    gl.uniformMatrix4fv( prgShadow.mMatrixUniform, false, mMatrix);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, teapotVertexBuffer);
-    gl.vertexAttribPointer(prgShadow.vertexPositionAttribute, 3, gl.FLOAT, false,0,0) ;
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, teapotIndexBuffer);
-    gl.drawElements(gl.TRIANGLES, teapotNumberIndex, gl.UNSIGNED_INT, 0);
-
-
-    mat4.identity(mMatrix);
-    mat4.translate(mMatrix, mMatrix, [0.0, -10.0, 0.0]);
-
-    gl.uniformMatrix4fv( prgShadow.mMatrixUniform, false, mMatrix);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, planVertexBuffer);
-    gl.vertexAttribPointer(prgShadow.vertexPositionAttribute, 3, gl.FLOAT, false,0,0) ;
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, planIndexBuffer);
-    gl.drawElements(gl.TRIANGLES, planNumberIndex, gl.UNSIGNED_INT, 0);
-
-    gl.disableVertexAttribArray(prgShadow.vertexPositionAttribute);
-
     /*
      * Teapot Rendering
      */
