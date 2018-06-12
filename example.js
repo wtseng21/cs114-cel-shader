@@ -315,8 +315,10 @@ function drawScene(){
 
         gl.bindBuffer(gl.ARRAY_BUFFER, teapotVertexBuffer);
         gl.vertexAttribPointer(prgOutLine.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, teapotNormalBuffer);
         gl.vertexAttribPointer(prgOutLine.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+        
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, teapotIndexBuffer);
 
         gl.drawElements(gl.TRIANGLES, teapotNumberIndex, gl.UNSIGNED_INT, 0);
@@ -361,6 +363,8 @@ function drawScene(){
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, teapotIndexBuffer);
 
     gl.drawElements(gl.TRIANGLES, teapotNumberIndex, gl.UNSIGNED_INT, 0);
+
+
 
     gl.disableVertexAttribArray(prgCel.vertexPositionAttribute);
     gl.disableVertexAttribArray(prgCel.vertexNormalAttribute);

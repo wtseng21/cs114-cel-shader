@@ -62,8 +62,8 @@ function updateSlider(sliderAmount) {
     rotSpeed = sliderAmount*10.0;
 }
 
-function changeShowLightState(ifShow) {
-    draw_light = ifShow;
+function changeShowOutline(ifShow) {
+    draw_outline = ifShow;
 }
 
 function changeAnimatedLightState(ifAnimated) {
