@@ -241,6 +241,10 @@
     <div class="panel">
         <p>Light Source Parameters</p>
         <table>
+          <tr>
+              <td colspan="2"><input type="checkbox"
+              onchange="changeLightSource(this.checked);">Show Light Source</td>
+          </tr>
 
             <tr>
                 <td width="200px"><input type="checkbox" onchange="changeAnimatedLightState(this.checked);">Animated light</td>
@@ -262,6 +266,11 @@
     <div class="panel" style="margin-left:10px">
         <p>Shading Parameters</p>
         <table>
+            <tr>
+                <td colspan="2"><input type="checkbox"
+                onchange="changeShowOutline(this.checked);">Show Outline</td>
+            </tr>
+
             <tr>
                 <td width="200px">Cel Shading</td>
                 <td>
@@ -285,11 +294,6 @@
                     <input id="sliderBar_CelBands" type="range" min="3" max="5" value="4" onchange="updateSlider_CelBands(this.value);">
                     (<span id="sliderAmount_CelBands">4</span>)
                 </td>
-            </tr>
-
-            <tr>
-                <td colspan="2"><input type="checkbox"
-                onchange="changeShowOutline(this.checked);">Show Outline</td>
             </tr>
         </table>
     </div>

@@ -66,6 +66,10 @@ function changeShowOutline(ifShow) {
     draw_outline = ifShow;
 }
 
+function changeLightSource(ifShow) {
+    draw_light = ifShow;
+}
+
 function changeAnimatedLightState(ifAnimated) {
     animated_light = ifAnimated;
     $("#sliderBarLight").prop("disabled", !animated_light);
