@@ -44,6 +44,38 @@ function initMesh() {
     currentTransform = meshTransforms[0];
 }
 
+function getShader(id) {
+    var script = document.getElementById(id);
+    if (!script) {
+        return null;
+    }
+
+    var string = "";
+    var fc = script.firstChild;
+    while (fc) {
+        if (fc.nodeType == 3) {
+            string += fc.textContent;
+        }
+
+        fc = fc.nextSibling;
+    }
+
+    var shader;
+    if (script.type == "x-shader/x-fragment") {
+        shader = gl.createShader(gl.FRAGMENT_SHADER);
+    }
+    else if (script.type == "x-shader/x-vertex") {
+        shader = gl.createShader(gl.VERTEX_SHADER);
+    }
+    else {
+        return null;
+    }
+
+    gl.shaderSource(shader, string);
+    gl.compileShader(shader);
+
+    return shader;
+}
 
 /*
  * Initializing shaders
@@ -53,12 +85,39 @@ var lightProgram;
 var outlineProgram;
 
 function initShaders() {
-    currentProgram = createShaderProg("shader-vs", "cel-shader-fs");
+
+    // // Cel Outline Program
+    // var Ovs = getShader("cel-outline-vs");
+    // var Ofs = getShader("cel-outline-fs");
+    //
+    // outlineProgram = gl.createProgram();
+    // gl.attachShader(outlineProgram, Ovs);
+    // gl.attachShader(outlineProgram, Ofs);
+    // gl.linkProgram(outlineProgram);
+    // gl.deleteShader(Ovs);
+    // gl.deleteShader(Ofs);
+    //
+    // outlineProgram.vertexPositionAttribute = gl.getAttribLocation(outlineProgram, "aVertexPosition");
+    // outlineProgram.vertexNormalAttribute = gl.getAttribLocation(outlineProgram, "aVertexNormal");
+    //
+    // outlineProgram.pMatrixUniform = gl.getUniformLocation(outlineProgram, "uPMatrix");
+    // outlineProgram.mvMatrixUniform = gl.getUniformLocation(outlineProgram, "uMVMatrix");
+    // outlineProgram.nMatrixUniform = gl.getUniformLocation(outlineProgram, "uNMatrix");
+    // outlineProgram.celShadeOn = gl.getUniformLocation(outlineProgram, "uCelShadeOn");
+
+    // Cel Shading Program
+    var Cvs = getShader("cel-shader-vs");
+    var Cfs = getShader("cel-shader-fs");
+
+    currentProgram = gl.createProgram();
+    gl.attachShader(currentProgram, Cvs);
+    gl.attachShader(currentProgram, Cfs);
+    gl.linkProgram(currentProgram);
+    gl.deleteShader(Cvs);
+    gl.deleteShader(Cfs);
 
     currentProgram.vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
-    gl.enableVertexAttribArray(currentProgram.vertexPositionAttribute);
     currentProgram.vertexNormalAttribute = gl.getAttribLocation(currentProgram, "aVertexNormal");
-    gl.enableVertexAttribArray(currentProgram.vertexNormalAttribute);
 
     currentProgram.pMatrixUniform = gl.getUniformLocation(currentProgram, "uPMatrix");
     currentProgram.mvMatrixUniform = gl.getUniformLocation(currentProgram, "uMVMatrix");
@@ -71,25 +130,28 @@ function initShaders() {
     currentProgram.celBandUniform = gl.getUniformLocation(currentProgram, "uCelBand");
     currentProgram.celShadeOnUniform = gl.getUniformLocation(currentProgram, "uCelShadeOn");
 
-    // TODO OUTLINE
-    // var Ovx = getShader("cel-outline-vs");
-    // var Ofg = getShader("cel-outline-fs");
+
+    // currentProgram = createShaderProg("shader-vs", "cel-shader-fs");
     //
-    // outlineProgram = gl.createProgram();
-    // gl.attachShader(outlineProgram, Ovx);
-    // gl.attachShader(outlineProgram, Ofg);
-    // gl.linkProgram(outlineProgram);
+    // currentProgram.vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
+    // currentProgram.vertexNormalAttribute = gl.getAttribLocation(currentProgram, "aVertexNormal");
+    // gl.enableVertexAttribArray(currentProgram.vertexPositionAttribute);
+    // gl.enableVertexAttribArray(currentProgram.vertexNormalAttribute);
+    //
+    // currentProgram.pMatrixUniform = gl.getUniformLocation(currentProgram, "uPMatrix");
+    // currentProgram.mvMatrixUniform = gl.getUniformLocation(currentProgram, "uMVMatrix");
+    // currentProgram.nMatrixUniform = gl.getUniformLocation(currentProgram, "uNMatrix");
 
-    outlineProgram = createShaderProg("cel-outline-vs", "cel-outline-fs");
-
-    outlineProgram.vertexPositionAttribute = gl.getAttribLocation(outlineProgram, 'aVertexPosition');
-    gl.enableVertexAttribArray(outlineProgram.vertexPositionAttribute);
-    outlineProgram.vertexNormalAttribute = gl.getAttribLocation(outlineProgram, 'aVertexNormal');
-    gl.enableVertexAttribArray(outlineProgram.vertexNormalAttribute);
-
-    outlineProgram.pMatrixUniform = gl.getUniformLocation(outlineProgram, 'uPMatrix');
-    outlineProgram.vMatrixUniform = gl.getUniformLocation(outlineProgram, 'uVMatrix');
-    outlineProgram.mMatrixUniform = gl.getUniformLocation(outlineProgram, 'uMMatrix');
+    //
+    //
+    // outlineProgram = createShaderProg("cel-outline-vs", "cel-outline-fs");
+    //
+    // outlineProgram.vertexPositionAttribute = gl.getAttribLocation(outlineProgram, "aVertexPosition");
+    // outlineProgram.vertexNormalAttribute = gl.getAttribLocation(outlineProgram, "aVertexNormal");
+    //
+    // outlineProgram.pMatrixUniform = gl.getUniformLocation(outlineProgram, 'uPMatrix');
+    // outlineProgram.vMatrixUniform = gl.getUniformLocation(outlineProgram, 'uVMatrix');
+    // outlineProgram.mMatrixUniform = gl.getUniformLocation(outlineProgram, 'uMMatrix');
 
     // outlineProgram = createShaderProg("shader-vs", "cel-outline-fs");
     // outlineProgram.vertexPositionAttribute = gl.getAttribLocation(outlineProgram, "aVertexPosition");
@@ -103,10 +165,6 @@ function initShaders() {
     // currentProgram.celShadeOnUniform = gl.getUniformLocation(currentProgram, "uCelShadeOn");
     // prgOutLine.offsetUniform = gl.getUniformLocation(prgOutLine, 'uOffset');
     // outlineProgram.outLineColor = gl.getUniformLocation(outlineProgram, "uOutlineColor");
-
-    //
-    // Declaring shading model specific uniform variables
-    //
 
     // Initializing light source drawing shader
     lightProgram = createShaderProg("shader-vs-light", "shader-fs-light");
@@ -171,13 +229,20 @@ function drawScene() {
     mat4.rotateY(mvMatrix, rotY);
     mat4.multiply(mvMatrix, currentTransform);
 
-    // CEL SHADER UNIFORMS
+
+
+    // Cel Shading Uniforms
     gl.useProgram(currentProgram);
 
+    gl.enableVertexAttribArray(currentProgram.vertexPositionAttribute);
+    gl.enableVertexAttribArray(currentProgram.vertexNormalAttribute);
+
+    gl.uniformMatrix4fv(currentProgram.pMatrixUniform, false, pMatrix);
     gl.uniformMatrix4fv(currentProgram.pMatrixUniform, false, pMatrix);
     gl.uniformMatrix4fv(currentProgram.mvMatrixUniform, false, mvMatrix);
     var nMatrix = mat4.transpose(mat4.inverse(mvMatrix));
     gl.uniformMatrix4fv(currentProgram.nMatrixUniform, false, nMatrix);
+
     gl.uniform3fv(currentProgram.lightPosUniform, lightPos);
     gl.uniform1f(currentProgram.lightPowerUniform, lightPower);
     gl.uniform3fv(currentProgram.kdUniform, diffuseColor);
@@ -192,45 +257,11 @@ function drawScene() {
     gl.vertexAttribPointer(currentProgram.vertexNormalAttribute, currentMesh.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, currentMesh.indexBuffer);
+
     gl.drawElements(gl.TRIANGLES, currentMesh.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 
-    // // TODO OUTLINE UNIFORMS
-    // gl.useProgram(outlineProgram);
-    //
-    // gl.uniformMatrix4fv(outlineProgram.pMatrixUniform, false, pMatrix);
-    // gl.uniformMatrix4fv(outlineProgram.mvMatrixUniform, false, mvMatrix);
-    // var nMatrix = mat4.transpose(mat4.inverse(mvMatrix));
-    // gl.uniformMatrix4fv(outlineProgram.nMatrixUniform, false, nMatrix);
-    //
-    // gl.bindBuffer(gl.ARRAY_BUFFER, currentMesh.vertexBuffer);
-    // gl.vertexAttribPointer(outlineProgram.vertexPositionAttribute, currentMesh.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-    //
-    // gl.bindBuffer(gl.ARRAY_BUFFER, currentMesh.normalBuffer);
-    // gl.vertexAttribPointer(outlineProgram.vertexNormalAttribute, currentMesh.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-    //
-    // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, currentMesh.indexBuffer);
-    // gl.drawElements(gl.TRIANGLES, currentMesh.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-
-    // // OUTLINE SHADER UNIFORMS
-    // gl.useProgram(outlineProgram);
-    // gl.uniformMatrix4fv(outlineProgram.pMatrixUniform, false, pMatrix);
-    // gl.uniformMatrix4fv(outlineProgram.mvMatrixUniform, false, mvMatrix);
-    // var nMatrix = mat4.transpose(mat4.inverse(mvMatrix));
-    // gl.uniformMatrix4fv(outlineProgram.nMatrixUniform, false, nMatrix);
-    // gl.uniform1i(currentProgram.celShadeOnUniform, celShadeOn);
-
-    // gl.uniform3fv(outlineProgram.outlineColorUniform, outlineColor);
-
-
-    if ( draw_light ) {
-        gl.useProgram(lightProgram);
-        gl.uniformMatrix4fv(lightProgram.pMatrixUniform, false, pMatrix);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, lightPositionBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, Float32Array.from(lightPos), gl.DYNAMIC_DRAW);
-        gl.vertexAttribPointer(lightProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-        gl.drawArrays(gl.POINTS, 0, 1);
-    }
+    gl.disableVertexAttribArray(currentProgram.vertexPositionAttribute);
+    gl.disableVertexAttribArray(currentProgram.vertexNormalAttribute);
 }
 
 var lastTime = 0;

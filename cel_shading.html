@@ -30,18 +30,6 @@
 <!-- Other javascript functions -->
 <script type="text/javascript" src="final.js"></script>
 
-
-<!-- Simple vertex shader for drawing the light source as a point -->
-<script id="shader-vs-light" type="x-shader/x-vertex">
-    uniform mat4 uPMatrix;
-    attribute vec3 aVertexPosition;
-
-    void main(void) {
-        gl_PointSize = 10.0;
-        gl_Position = uPMatrix * vec4(aVertexPosition, 1.0);
-    }
-</script>
-
 <!-- Vertex shader for outline -->
 <script id="cel-outline-vs" type="x-shader/x-vertex">
     // TODO
@@ -55,7 +43,8 @@
 
     void main(void) {
         if (uCelShadeOn == 1) {
-            gl_Position = uPMatrix * uMVMatrix  * uNMatrix *  vec4(aVertexPosition + aVertexNormal * 0.2, 1.0);
+            vec4 x = uMVMatrix * vec4(aVertexPosition, 0.5);
+            gl_Position = uPMatrix * x;
         }
     }
 </script>
@@ -71,8 +60,28 @@
     }
 </script>
 
+<!-- Simple vertex shader for drawing the light source as a point -->
+<script id="shader-vs-light" type="x-shader/x-vertex">
+    uniform mat4 uPMatrix;
+    attribute vec3 aVertexPosition;
+
+    void main(void) {
+        gl_PointSize = 10.0;
+        gl_Position = uPMatrix * vec4(aVertexPosition, 1.0);
+    }
+</script>
+
+<!-- Fragment shader: light draing -->
+<script id="shader-fs-light" type="x-shader/x-fragment">
+    precision mediump float;
+
+    void main(void) {
+        gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+    }
+</script>
+
 <!-- Common vertex shader for all shading models -->
-<script id="shader-vs" type="x-shader/x-vertex">
+<script id="cel-shader-vs" type="x-shader/x-vertex">
     uniform mat4 uMVMatrix;             // Model-view matrix
     uniform mat4 uPMatrix;              // Projection matrix
     uniform mat4 uNMatrix;              // Normal matrix
@@ -91,15 +100,6 @@
 
         vec4 camSpaceNormal = uNMatrix * vec4(aVertexNormal, 0.0);
         vNormal = vec3(camSpaceNormal);
-    }
-</script>
-
-<!-- Fragment shader: light draing -->
-<script id="shader-fs-light" type="x-shader/x-fragment">
-    precision mediump float;
-
-    void main(void) {
-        gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
     }
 </script>
 
@@ -244,9 +244,6 @@
     <div class="panel">
         <p>Light Source Parameters</p>
         <table>
-            <tr>
-                <td colspan="2"><input type="checkbox" onchange="changeShowLightState(this.checked);">Draw light source (as a point)</td>
-            </tr>
             <tr>
                 <td width="200px"><input type="checkbox" onchange="changeAnimatedLightState(this.checked);">Animated light</td>
                 <td>
