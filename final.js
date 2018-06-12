@@ -87,10 +87,10 @@ function updateSlider_LightPower(sliderAmount) {
     lightPower = value;
 }
 
-function updateSlider_Ambient(sliderAmount) {
-    var value = sliderAmount/100.0;
-    $("#sliderAmount_Ambient").html(value);
-    ambientIntensity = value;
+function updateSlider_outlineThickness(sliderAmount) {
+    var value = sliderAmount;
+    $("#sliderAmount_outlineThickness").html(value);
+    outlineThickness = value;
 }
 
 function updateSlider_CelBands(sliderAmount) {
@@ -124,6 +124,19 @@ $(function() {
             var color_ = color.toRgb();
             $("#colorText").html(color.toHexString());
             diffuseColor = [color_.r/255.0, color_.g/255.0, color_.b/255.0];
+        }
+    });
+
+    $("#outlineColorPicker").spectrum({
+        color: "#000000",
+        showPaletteOnly: true,
+        togglePaletteOnly: true,
+        hideAfterPaletteSelect: true,
+        palette: colorPalette,
+        change: function(color) {
+            var color_ = color.toRgb();
+            $("#outlineColorText").html(color.toHexString());
+            outlineColor = [color_.r/255.0, color_.g/255.0, color_.b/255.0];
         }
     });
 
