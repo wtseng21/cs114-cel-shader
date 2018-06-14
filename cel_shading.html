@@ -101,10 +101,17 @@ void main(void) {
 	vec4 sobel_edge_v = n[0] + (2.0*n[1]) + n[2] - (n[6] + (2.0*n[7]) + n[8]);
 	vec4 sobel = sqrt((sobel_edge_h * sobel_edge_h) + (sobel_edge_v * sobel_edge_v));
 
-	gl_FragColor = vec4( diffuse + vec3(1.0 - sobel.rgb), 1.0 );
+  float g = sobel.r * 0.2 + sobel.g * 0.7 + sobel.b * 0.1;
+  // gl_FragColor = vec4( diffuse + vec3(1.0 - sobel.rgb), 1.0 );
 
 
-  // gl_FragColor = texture2D(uCelTexture, v_texCoord);
+  if (g > 0.25) {
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+  }
+
+   else {
+     gl_FragColor = texture2D(uCelTexture, v_texCoord);
+   }
 
 }
 
