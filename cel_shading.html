@@ -61,7 +61,9 @@ void main(void) { //TODO: excerpted from WebGl fundamentals, image processing
 <script id="fs-outline-on" type="x-shader/x-fragment">
 precision mediump float;
 
+// varying vec2 u_resolution;
 uniform sampler2D uCelTexture;
+// uniform sampler2D uDepthTexture;
 
 varying vec2 v_texCoord;
 
@@ -77,31 +79,31 @@ mat3 sy = mat3(
 );
 
 void main(void) {
+  //TODO: remove hard coding
+  float w = 1.0/800.0;
+  float h = 1.0/450.0;
+  // vec2 texUnit = vec2(1.0/width, 1.0/height);
+
   vec3 diffuse = texture2D(uCelTexture, v_texCoord.st).rgb;
-  mat3 I;
-  for (int i=0; i<3; i++) {
-      for (int j=0; j<3; j++) {
-        vec2 temp = v_texCoord.st + vec2(i-1,j-1);
-        vec3 sample = texture2D(uCelTexture, temp).rgb;
 
-        // vec2 temp = vec2(gl_FragCoord.st) + vec2(i-1,j-1);
-        // texelFetch(uCelTexture, temp, 0 ).rgb;
-        // vec3 sample = texelFetch(uCelTexture, ivec2(gl_FragCoord) + ivec2(i-1,j-1), 0 ).rgb;
-        I[i][j] = length(sample);
-        }
-  }
+  vec4 n[9];
+  n[0] = texture2D(uCelTexture, v_texCoord.st + vec2( -w, -h));
+  n[1] = texture2D(uCelTexture, v_texCoord.st + vec2(0.0, -h));
+  n[2] = texture2D(uCelTexture, v_texCoord.st + vec2(  w, -h));
+  n[3] = texture2D(uCelTexture, v_texCoord.st + vec2( -w, 0.0));
+  n[4] = texture2D(uCelTexture, v_texCoord.st);
+  n[5] = texture2D(uCelTexture, v_texCoord.st + vec2(  w, 0.0));
+  n[6] = texture2D(uCelTexture, v_texCoord.st + vec2( -w, h));
+  n[7] = texture2D(uCelTexture, v_texCoord.st + vec2(0.0, h));
+  n[8] = texture2D(uCelTexture, v_texCoord.st + vec2(  w, h));
 
-  float gx = dot(sx[0], I[0]) + dot(sx[1], I[1]) + dot(sx[2], I[2]);
-  float gy = dot(sy[0], I[0]) + dot(sy[1], I[1]) + dot(sy[2], I[2]);
-  //
-  float g = sqrt(pow(gx, 2.0)+pow(gy, 2.0));
-  g = smoothstep(0.4, 0.6, g);
-  // gl_FragColor = vec4(diffuse - vec3(g), 1.0);
-  if(g > 0.2) {
-      gl_FragColor = vec4(0.0, 0.0, 0.0, 1);
-  } else {
-      gl_FragColor = vec4(diffuse, 1.0);
-  }
+  vec4 sobel_edge_h = n[2] + (2.0*n[5]) + n[8] - (n[0] + (2.0*n[3]) + n[6]);
+	vec4 sobel_edge_v = n[0] + (2.0*n[1]) + n[2] - (n[6] + (2.0*n[7]) + n[8]);
+	vec4 sobel = sqrt((sobel_edge_h * sobel_edge_h) + (sobel_edge_v * sobel_edge_v));
+
+	gl_FragColor = vec4( diffuse + vec3(1.0 - sobel.rgb), 1.0 );
+
+
   // gl_FragColor = texture2D(uCelTexture, v_texCoord);
 
 }
