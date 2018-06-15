@@ -42,17 +42,15 @@ function initTextureBuffers() {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-  // Create and bind the framebuffer //TODO: referenced from webgl tutorial
+  // Create and bind the framebuffer
   textureBuffer = gl.createFramebuffer();
   gl.bindFramebuffer(gl.FRAMEBUFFER, textureBuffer);
   textureBuffer.width = textureWidth;
   textureBuffer.height = textureHeight;
 
-  //////     TODO: possibly remove this     ////////////////////////////////////////////////////////////////
   var renderBuffer = gl.createRenderbuffer();
   gl.bindRenderbuffer(gl.RENDERBUFFER, renderBuffer);
   gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, textureBuffer.width, textureBuffer.height);
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   const attachmentPoint = gl.COLOR_ATTACHMENT0;
   const attachLevel = 0;
@@ -96,53 +94,19 @@ function initMesh() {
     currentTransform = meshTransforms[0];
 }
 
-function getShader(id) {
-    var script = document.getElementById(id);
-    if (!script) {
-        return null;
-    }
-
-    var string = "";
-    var fc = script.firstChild;
-    while (fc) {
-        if (fc.nodeType == 3) {
-            string += fc.textContent;
-        }
-
-        fc = fc.nextSibling;
-    }
-
-    var shader;
-    if (script.type == "x-shader/x-fragment") {
-        shader = gl.createShader(gl.FRAGMENT_SHADER);
-    }
-    else if (script.type == "x-shader/x-vertex") {
-        shader = gl.createShader(gl.VERTEX_SHADER);
-    }
-    else {
-        return null;
-    }
-
-    gl.shaderSource(shader, string);
-    gl.compileShader(shader);
-
-    return shader;
-}
-
-
 var testProgram;
-function createOutlineShader(vs_id, fs_id) { //TODO: NEW
 
-  var shaderProg = createShaderProg(vs_id, fs_id);
-  shaderProg.positionLocation = gl.getAttribLocation(shaderProg, "a_position");
-  shaderProg.texcoordLocation = gl.getAttribLocation(shaderProg, "a_texCoord");
-  shaderProg.olUniform = gl.getUniformLocation(shaderProg, "uOutlineColor");
-  shaderProg.celTexture = gl.getUniformLocation(shaderProg, "uCelTexture");
-  shaderProg.outlineOnUniform = gl.getUniformLocation(shaderProg, "uOutlineOn");
-  shaderProg.depthTexture = gl.getUniformLocation(shaderProg, "uDepthTexture");
+function createOutlineShader(vs_id, fs_id) {
+    var shaderProg = createShaderProg(vs_id, fs_id);
 
-  return shaderProg;
+    shaderProg.positionLocation = gl.getAttribLocation(shaderProg, "a_position");
+    shaderProg.texcoordLocation = gl.getAttribLocation(shaderProg, "a_texCoord");
+    shaderProg.olUniform = gl.getUniformLocation(shaderProg, "uOutlineColor");
+    shaderProg.celTexture = gl.getUniformLocation(shaderProg, "uCelTexture");
+    shaderProg.outlineOnUniform = gl.getUniformLocation(shaderProg, "uOutlineOn");
+    shaderProg.depthTexture = gl.getUniformLocation(shaderProg, "uDepthTexture");
 
+    return shaderProg;
 }
 
 /*
@@ -156,15 +120,6 @@ function initShaders() {
 
     // Cel Outline Program
     outlineProgram = createShaderProg("cel-outline-vs", "cel-outline-fs");
-    // var Ovs = getShader("cel-outline-vs");
-    // var Ofs = getShader("cel-outline-fs");
-    //
-    // outlineProgram = gl.createProgram();
-    // gl.attachShader(outlineProgram, Ovs);
-    // gl.attachShader(outlineProgram, Ofs);
-    // gl.linkProgram(outlineProgram);
-    // gl.deleteShader(Ovs);
-    // gl.deleteShader(Ofs);
 
     outlineProgram.vertexPositionAttribute = gl.getAttribLocation(outlineProgram, "aVertexPosition");
     outlineProgram.vertexNormalAttribute = gl.getAttribLocation(outlineProgram, "aVertexNormal");
@@ -183,16 +138,6 @@ function initShaders() {
 
     // Cel Shading Program
     currentProgram = createShaderProg("cel-shader-vs", "cel-shader-fs");
-
-    // var Cvs = getShader("cel-shader-vs");
-    // var Cfs = getShader("cel-shader-fs");
-    //
-    // currentProgram = gl.createProgram();
-    // gl.attachShader(currentProgram, Cvs);
-    // gl.attachShader(currentProgram, Cfs);
-    // gl.linkProgram(currentProgram);
-    // gl.deleteShader(Cvs);
-    // gl.deleteShader(Cfs);
 
     currentProgram.vertexPositionAttribute = gl.getAttribLocation(currentProgram, "aVertexPosition");
     currentProgram.vertexNormalAttribute = gl.getAttribLocation(currentProgram, "aVertexNormal");
@@ -215,7 +160,6 @@ function initShaders() {
     gl.enableVertexAttribArray(lightProgram.vertexPositionAttribute);
     lightProgram.pMatrixUniform = gl.getUniformLocation(lightProgram, "uPMatrix");
 
-    //TODO: NEW
     testProgram = createOutlineShader("vs-outline-on", "fs-outline-on");
 }
 
@@ -231,7 +175,6 @@ function initBuffers() {
 }
 
 
-//TODO: function referenced from webgl fundamentals
 function setRectangle(gl, x, y, width, height) {
   var x1 = x;
   var x2 = x + width;
@@ -269,9 +212,6 @@ function drawBufferToCanvas() {
     1.0,  1.0,
   ]), gl.STATIC_DRAW);
 
-
-  //TODO: skipped resolution stuff for now..
-
   // Tell WebGL how to convert from clip space to pixels
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.useProgram(testProgram);
@@ -298,7 +238,6 @@ function drawBufferToCanvas() {
   var resolutionLocation = gl.getUniformLocation(testProgram, "u_resolution");
   gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
   gl.drawArrays(gl.TRIANGLES, 0, 6);
-
 }
 
 /*
@@ -332,8 +271,7 @@ var draw_light = false;
 
 
 function drawScene() {
-
-    gl.bindFramebuffer(gl.FRAMEBUFFER, textureBuffer); //TODO: THIS LINE WAS ADDED
+    gl.bindFramebuffer(gl.FRAMEBUFFER, textureBuffer);
 
     gl.clear( gl.COLOR_BUFFER_BIT |  gl.DEPTH_BUFFER_BIT);
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
@@ -354,7 +292,7 @@ function drawScene() {
     mat4.rotateY(mvMatrix, rotY);
     mat4.multiply(mvMatrix, currentTransform);
 
-    // Cel Outline Uniforms
+    // Cel Outline Uniforms - DID NOT WORK
     // if (draw_outline) {
       // gl.enable(gl.CULL_FACE);
       // gl.cullFace(gl.FRONT);

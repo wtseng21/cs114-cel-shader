@@ -31,99 +31,88 @@
 <script type="text/javascript" src="final.js"></script>
 
 <script id="vs-outline-on" type="x-shader/x-vertex">
-//TODO: NEWWWWW
-attribute vec2 a_position;
-attribute vec2 a_texCoord;
+    attribute vec2 a_position;
+    attribute vec2 a_texCoord;
 
-uniform vec2 u_resolution;
+    uniform vec2 u_resolution;
 
-varying vec2 v_texCoord;
+    varying vec2 v_texCoord;
 
-void main(void) { //TODO: excerpted from WebGl fundamentals, image processing
-  // convert the rectangle from pixels to 0.0 to 1.0
-  vec2 zeroToOne = a_position / u_resolution;
+    void main(void) {
+      // convert the rectangle from pixels to 0.0 to 1.0
+      vec2 zeroToOne = a_position / u_resolution;
 
-  // convert from 0->1 to 0->2
-  vec2 zeroToTwo = zeroToOne * 2.0;
+      // convert from 0->1 to 0->2
+      vec2 zeroToTwo = zeroToOne * 2.0;
 
-  // convert from 0->2 to -1->+1 (clipspace)
-  vec2 clipSpace = zeroToTwo - 1.0;
+      // convert from 0->2 to -1->+1 (clipspace)
+      vec2 clipSpace = zeroToTwo - 1.0;
 
-  gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+      gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
 
-  // pass the texCoord to the fragment shader
-  // The GPU will interpolate this value between points.
-  v_texCoord = a_texCoord;
-}
+      // pass the texCoord to the fragment shader
+      // The GPU will interpolate this value between points.
+      v_texCoord = a_texCoord;
+    }
 </script>
 
-
 <script id="fs-outline-on" type="x-shader/x-fragment">
-precision mediump float;
+    precision mediump float;
 
-// varying vec2 u_resolution;
-uniform sampler2D uCelTexture;
-// uniform sampler2D uDepthTexture;
-uniform vec3 uOutlineColor;
-uniform int   uOutlineOn;
+    uniform sampler2D uCelTexture;
+    uniform vec3 uOutlineColor;
+    uniform int   uOutlineOn;
 
+    varying vec2 v_texCoord;
 
+    mat3 sx = mat3(
+        1.0, 2.0, 1.0,
+        0.0, 0.0, 0.0,
+       -1.0, -2.0, -1.0
+    );
+    mat3 sy = mat3(
+        1.0, 0.0, -1.0,
+        2.0, 0.0, -2.0,
+        1.0, 0.0, -1.0
+    );
 
-varying vec2 v_texCoord;
+    void main(void) {
+      float w = 1.0/800.0;
+      float h = 1.0/450.0;
 
-mat3 sx = mat3(
-    1.0, 2.0, 1.0,
-    0.0, 0.0, 0.0,
-   -1.0, -2.0, -1.0
-);
-mat3 sy = mat3(
-    1.0, 0.0, -1.0,
-    2.0, 0.0, -2.0,
-    1.0, 0.0, -1.0
-);
+      vec3 diffuse = texture2D(uCelTexture, v_texCoord.st).rgb;
 
-void main(void) {
-  //TODO: remove hard coding
-  float w = 1.0/800.0;
-  float h = 1.0/450.0;
-  // vec2 texUnit = vec2(1.0/width, 1.0/height);
+      vec4 n[9];
+      n[0] = texture2D(uCelTexture, v_texCoord.st + vec2( -w, -h));
+      n[1] = texture2D(uCelTexture, v_texCoord.st + vec2(0.0, -h));
+      n[2] = texture2D(uCelTexture, v_texCoord.st + vec2(  w, -h));
+      n[3] = texture2D(uCelTexture, v_texCoord.st + vec2( -w, 0.0));
+      n[4] = texture2D(uCelTexture, v_texCoord.st);
+      n[5] = texture2D(uCelTexture, v_texCoord.st + vec2(  w, 0.0));
+      n[6] = texture2D(uCelTexture, v_texCoord.st + vec2( -w, h));
+      n[7] = texture2D(uCelTexture, v_texCoord.st + vec2(0.0, h));
+      n[8] = texture2D(uCelTexture, v_texCoord.st + vec2(  w, h));
 
-  vec3 diffuse = texture2D(uCelTexture, v_texCoord.st).rgb;
+      vec4 sobel_edge_h = n[2] + (2.0*n[5]) + n[8] - (n[0] + (2.0*n[3]) + n[6]);
+    	vec4 sobel_edge_v = n[0] + (2.0*n[1]) + n[2] - (n[6] + (2.0*n[7]) + n[8]);
+    	vec4 sobel = sqrt((sobel_edge_h * sobel_edge_h) + (sobel_edge_v * sobel_edge_v));
 
-  vec4 n[9];
-  n[0] = texture2D(uCelTexture, v_texCoord.st + vec2( -w, -h));
-  n[1] = texture2D(uCelTexture, v_texCoord.st + vec2(0.0, -h));
-  n[2] = texture2D(uCelTexture, v_texCoord.st + vec2(  w, -h));
-  n[3] = texture2D(uCelTexture, v_texCoord.st + vec2( -w, 0.0));
-  n[4] = texture2D(uCelTexture, v_texCoord.st);
-  n[5] = texture2D(uCelTexture, v_texCoord.st + vec2(  w, 0.0));
-  n[6] = texture2D(uCelTexture, v_texCoord.st + vec2( -w, h));
-  n[7] = texture2D(uCelTexture, v_texCoord.st + vec2(0.0, h));
-  n[8] = texture2D(uCelTexture, v_texCoord.st + vec2(  w, h));
+      float g = sobel.r * 0.2 + sobel.g * 0.7 + sobel.b * 0.1;
 
-  vec4 sobel_edge_h = n[2] + (2.0*n[5]) + n[8] - (n[0] + (2.0*n[3]) + n[6]);
-	vec4 sobel_edge_v = n[0] + (2.0*n[1]) + n[2] - (n[6] + (2.0*n[7]) + n[8]);
-	vec4 sobel = sqrt((sobel_edge_h * sobel_edge_h) + (sobel_edge_v * sobel_edge_v));
+      if (uOutlineOn == 0) {
+        gl_FragColor = texture2D(uCelTexture, v_texCoord);
+        return;
+      }
 
-  float g = sobel.r * 0.2 + sobel.g * 0.7 + sobel.b * 0.1;
-  // gl_FragColor = vec4( diffuse + vec3(1.0 - sobel.rgb), 1.0 );
+      if (g > 0.25) {
 
-  if (uOutlineOn == 0) {
-    gl_FragColor = texture2D(uCelTexture, v_texCoord);
-    return;
-  }
+        gl_FragColor = vec4(uOutlineColor, 1.0);
+      }
 
-  if (g > 0.25) {
-
-    gl_FragColor = vec4(uOutlineColor, 1.0);
-  }
-
-   else {
-     gl_FragColor = texture2D(uCelTexture, v_texCoord);
-   }
-
-}
-
+       else {
+         gl_FragColor = texture2D(uCelTexture, v_texCoord);
+       }
+    }
 </script>
 
 <!-- Vertex shader for outline -->
