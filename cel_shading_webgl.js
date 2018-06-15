@@ -279,53 +279,18 @@ function drawScene() {
     mat4.perspective(35, gl.viewportWidth/gl.viewportHeight, 0.1, 1000.0, pMatrix);
 
     mat4.identity(lightMatrix);
-    mat4.translate(lightMatrix, [0.0, -1.0, -7.0]);
-    mat4.rotateX(lightMatrix, 0.3);
-    mat4.rotateY(lightMatrix, rotY_light);
+    mat4.translate(lightMatrix, [0.0, 1.0, -7.0]);
+    mat4.rotateX(lightMatrix, 9.1);
+    mat4.rotateY(lightMatrix, rotY_light + 210);
 
     lightPos.set([0.0, 2.5, 3.0]);
     mat4.multiplyVec3(lightMatrix, lightPos);
 
     mat4.identity(mvMatrix);
-    mat4.translate(mvMatrix, [0.0, -1.0, -7.0]);
-    mat4.rotateX(mvMatrix, 0.3);
+    mat4.translate(mvMatrix, [0.0, 1.0, -7.0]);
+    mat4.rotateX(mvMatrix, 9.1);
     mat4.rotateY(mvMatrix, rotY);
     mat4.multiply(mvMatrix, currentTransform);
-
-    // Cel Outline Uniforms - DID NOT WORK
-    // if (draw_outline) {
-      // gl.enable(gl.CULL_FACE);
-      // gl.cullFace(gl.FRONT);
-      //
-      // gl.useProgram(outlineProgram);
-      //
-      // gl.enableVertexAttribArray(outlineProgram.vertexPositionAttribute);
-      // gl.enableVertexAttribArray(outlineProgram.vertexNormalAttribute);
-      //
-      // gl.uniformMatrix4fv(outlineProgram.pMatrixUniform, false, pMatrix);
-      // gl.uniformMatrix4fv(outlineProgram.mvMatrixUniform, false, mvMatrix);
-      // var nMatrix = mat4.transpose(mat4.inverse(mvMatrix));
-      // gl.uniformMatrix4fv(outlineProgram.nMatrixUniform, false, nMatrix);
-      //
-      // gl.uniform3fv(outlineProgram.olUniform, outlineColor);
-      // gl.uniform1i(outlineProgram.celShadeOnUniform, celShadeOn);
-      // gl.uniform1f(outlineProgram.outlineThicknessUniform, outlineThickness);
-      //
-      // gl.bindBuffer(gl.ARRAY_BUFFER, currentMesh.vertexBuffer);
-      // gl.vertexAttribPointer(outlineProgram.vertexPositionAttribute, currentMesh.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-      //
-      // gl.bindBuffer(gl.ARRAY_BUFFER, currentMesh.normalBuffer);
-      // gl.vertexAttribPointer(outlineProgram.vertexNormalAttribute, currentMesh.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-      //
-      // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, currentMesh.indexBuffer);
-      //
-      // gl.drawElements(gl.TRIANGLES, currentMesh.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-      //
-      // gl.disableVertexAttribArray(outlineProgram.vertexPositionAttribute);
-      // gl.disableVertexAttribArray(outlineProgram.vertexNormalAttribute);
-      //
-      // gl.disable(gl.CULL_FACE);
-    // }
 
     // Cel Shading Uniforms
     gl.useProgram(currentProgram);
@@ -357,21 +322,8 @@ function drawScene() {
     gl.disableVertexAttribArray(currentProgram.vertexPositionAttribute);
     gl.disableVertexAttribArray(currentProgram.vertexNormalAttribute);
 
-
-    if (draw_light) {
-      gl.useProgram(lightProgram);
-      gl.uniformMatrix4fv(lightProgram.pMatrixUniform, false, pMatrix);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, lightPositionBuffer);
-      gl.bufferData(gl.ARRAY_BUFFER, Float32Array.from(lightPos), gl.DYNAMIC_DRAW);
-      gl.vertexAttribPointer(lightProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-      gl.drawArrays(gl.POINTS, 0, 1);
-    }
-
-
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.bindTexture(gl.TEXTURE_2D, celTexture);
-    //gl.bind
 
     drawBufferToCanvas();
 }
