@@ -138,6 +138,7 @@ function createOutlineShader(vs_id, fs_id) { //TODO: NEW
   shaderProg.texcoordLocation = gl.getAttribLocation(shaderProg, "a_texCoord");
   shaderProg.olUniform = gl.getUniformLocation(shaderProg, "uOutlineColor");
   shaderProg.celTexture = gl.getUniformLocation(shaderProg, "uCelTexture");
+  shaderProg.outlineOnUniform = gl.getUniformLocation(shaderProg, "uOutlineOn");
   shaderProg.depthTexture = gl.getUniformLocation(shaderProg, "uDepthTexture");
 
   return shaderProg;
@@ -276,6 +277,7 @@ function drawBufferToCanvas() {
   gl.useProgram(testProgram);
 
   gl.uniform3fv(testProgram.olUniform, outlineColor);
+  gl.uniform1i(testProgram.outlineOnUniform, outlineOn);
 
 
   // Turn on the position attribute
@@ -318,6 +320,7 @@ var outlineThickness = 1;                       // Ambient
 var specularColor = [1.0, 1.0, 1.0];            // Specular Color
 var celBand = 3;                                // Number of Bands for Cel Shading
 var celShadeOn = 0;                             // Determines if Cel Shading is enabled
+var outlineOn = 0;
 var outlineColor = [0.0, 0.0, 0.0];
 var outlineThickness = 2;
 
@@ -352,39 +355,39 @@ function drawScene() {
     mat4.multiply(mvMatrix, currentTransform);
 
     // Cel Outline Uniforms
-    if (draw_outline) {
-      gl.enable(gl.CULL_FACE);
-      gl.cullFace(gl.FRONT);
-
-      gl.useProgram(outlineProgram);
-
-      gl.enableVertexAttribArray(outlineProgram.vertexPositionAttribute);
-      gl.enableVertexAttribArray(outlineProgram.vertexNormalAttribute);
-
-      gl.uniformMatrix4fv(outlineProgram.pMatrixUniform, false, pMatrix);
-      gl.uniformMatrix4fv(outlineProgram.mvMatrixUniform, false, mvMatrix);
-      var nMatrix = mat4.transpose(mat4.inverse(mvMatrix));
-      gl.uniformMatrix4fv(outlineProgram.nMatrixUniform, false, nMatrix);
-
-      gl.uniform3fv(outlineProgram.olUniform, outlineColor);
-      gl.uniform1i(outlineProgram.celShadeOnUniform, celShadeOn);
-      gl.uniform1f(outlineProgram.outlineThicknessUniform, outlineThickness);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, currentMesh.vertexBuffer);
-      gl.vertexAttribPointer(outlineProgram.vertexPositionAttribute, currentMesh.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, currentMesh.normalBuffer);
-      gl.vertexAttribPointer(outlineProgram.vertexNormalAttribute, currentMesh.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, currentMesh.indexBuffer);
-
-      gl.drawElements(gl.TRIANGLES, currentMesh.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-
-      gl.disableVertexAttribArray(outlineProgram.vertexPositionAttribute);
-      gl.disableVertexAttribArray(outlineProgram.vertexNormalAttribute);
-
-      gl.disable(gl.CULL_FACE);
-    }
+    // if (draw_outline) {
+      // gl.enable(gl.CULL_FACE);
+      // gl.cullFace(gl.FRONT);
+      //
+      // gl.useProgram(outlineProgram);
+      //
+      // gl.enableVertexAttribArray(outlineProgram.vertexPositionAttribute);
+      // gl.enableVertexAttribArray(outlineProgram.vertexNormalAttribute);
+      //
+      // gl.uniformMatrix4fv(outlineProgram.pMatrixUniform, false, pMatrix);
+      // gl.uniformMatrix4fv(outlineProgram.mvMatrixUniform, false, mvMatrix);
+      // var nMatrix = mat4.transpose(mat4.inverse(mvMatrix));
+      // gl.uniformMatrix4fv(outlineProgram.nMatrixUniform, false, nMatrix);
+      //
+      // gl.uniform3fv(outlineProgram.olUniform, outlineColor);
+      // gl.uniform1i(outlineProgram.celShadeOnUniform, celShadeOn);
+      // gl.uniform1f(outlineProgram.outlineThicknessUniform, outlineThickness);
+      //
+      // gl.bindBuffer(gl.ARRAY_BUFFER, currentMesh.vertexBuffer);
+      // gl.vertexAttribPointer(outlineProgram.vertexPositionAttribute, currentMesh.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      //
+      // gl.bindBuffer(gl.ARRAY_BUFFER, currentMesh.normalBuffer);
+      // gl.vertexAttribPointer(outlineProgram.vertexNormalAttribute, currentMesh.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+      //
+      // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, currentMesh.indexBuffer);
+      //
+      // gl.drawElements(gl.TRIANGLES, currentMesh.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+      //
+      // gl.disableVertexAttribArray(outlineProgram.vertexPositionAttribute);
+      // gl.disableVertexAttribArray(outlineProgram.vertexNormalAttribute);
+      //
+      // gl.disable(gl.CULL_FACE);
+    // }
 
     // Cel Shading Uniforms
     gl.useProgram(currentProgram);

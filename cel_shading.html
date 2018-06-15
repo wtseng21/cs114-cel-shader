@@ -65,6 +65,8 @@ precision mediump float;
 uniform sampler2D uCelTexture;
 // uniform sampler2D uDepthTexture;
 uniform vec3 uOutlineColor;
+uniform int   uOutlineOn;
+
 
 
 varying vec2 v_texCoord;
@@ -106,8 +108,13 @@ void main(void) {
   float g = sobel.r * 0.2 + sobel.g * 0.7 + sobel.b * 0.1;
   // gl_FragColor = vec4( diffuse + vec3(1.0 - sobel.rgb), 1.0 );
 
+  if (uOutlineOn == 0) {
+    gl_FragColor = texture2D(uCelTexture, v_texCoord);
+    return;
+  }
 
   if (g > 0.25) {
+
     gl_FragColor = vec4(uOutlineColor, 1.0);
   }
 

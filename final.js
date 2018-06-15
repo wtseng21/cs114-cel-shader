@@ -64,6 +64,12 @@ function updateSlider(sliderAmount) {
 
 function changeShowOutline(ifShow) {
     draw_outline = ifShow;
+    if (ifShow) {
+      outlineOn = 1;
+      return;
+    }
+    outlineOn = 0;
+
 }
 
 function changeLightSource(ifShow) {
