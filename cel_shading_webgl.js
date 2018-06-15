@@ -136,6 +136,7 @@ function createOutlineShader(vs_id, fs_id) { //TODO: NEW
   var shaderProg = createShaderProg(vs_id, fs_id);
   shaderProg.positionLocation = gl.getAttribLocation(shaderProg, "a_position");
   shaderProg.texcoordLocation = gl.getAttribLocation(shaderProg, "a_texCoord");
+  shaderProg.olUniform = gl.getUniformLocation(shaderProg, "uOutlineColor");
   shaderProg.celTexture = gl.getUniformLocation(shaderProg, "uCelTexture");
   shaderProg.depthTexture = gl.getUniformLocation(shaderProg, "uDepthTexture");
 
@@ -267,11 +268,15 @@ function drawBufferToCanvas() {
     1.0,  1.0,
   ]), gl.STATIC_DRAW);
 
+
   //TODO: skipped resolution stuff for now..
 
   // Tell WebGL how to convert from clip space to pixels
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   gl.useProgram(testProgram);
+
+  gl.uniform3fv(testProgram.olUniform, outlineColor);
+
 
   // Turn on the position attribute
   gl.enableVertexAttribArray(testProgram.positionLocation);
@@ -425,6 +430,7 @@ function drawScene() {
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.bindTexture(gl.TEXTURE_2D, celTexture);
+    //gl.bind
 
     drawBufferToCanvas();
 }
